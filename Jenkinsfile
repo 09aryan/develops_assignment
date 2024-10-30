@@ -2,7 +2,7 @@ pipeline {
     agent any
     environment {
         NODE_ENV = 'development'
-        APP_PORT = '3000' // Default port; can be customized as needed
+        APP_PORT = '3000' // Default port, can be customized
     }
     stages {
         stage('Verify Node.js and npm Installation') {
