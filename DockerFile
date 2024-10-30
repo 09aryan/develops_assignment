@@ -19,4 +19,4 @@ ENV PORT=$APP_PORT
 EXPOSE $PORT
 
 # Command to run the application
-CMD ["node", "app.js"]
+CMD ["node", "app.js"] // Adjust if your main entry file is named differently
