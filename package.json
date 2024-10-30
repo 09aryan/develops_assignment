@@ -1,21 +1,20 @@
 {
   "name": "node_app",
   "version": "1.0.0",
+  "description": "",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1", 
+   
     "start": "node app.js", 
     "build": "echo 'Build step is defined; add your build commands here'"
   },
-  "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "",
   "dependencies": {
     "express": "^4.21.1"
   },
   "devDependencies": {
-    "mocha": "^10.2.0", 
+    "mocha": "^10.2.0",
     "chai": "^4.3.6"
   }
 }
