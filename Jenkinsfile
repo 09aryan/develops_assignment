@@ -4,14 +4,14 @@ pipeline {
 
     environment {
         NODE_ENV = 'development'
-        APP_PORT = '3000' // Default application port
+        APP_PORT = '3000'
     }
 
     stages {
         stage('Checkout') {
             steps {
                 echo 'Checking out code...'
-                checkout scm // Check out the code from the source control
+                checkout scm
             }
         }
 
@@ -23,40 +23,40 @@ pipeline {
             }
         }
 
-        stage('Install Dependencies') {
+        stage('Install dependencies') {
             steps {
                 echo 'Installing dependencies...'
-                sh 'npm install' // Install the dependencies defined in package.json
+                sh 'npm install'
             }
         }
 
         stage('Test') {
             steps {
                 echo 'Running tests...'
-                sh 'npm test || echo "No test specified or tests failed"' // Run tests; handle cases where no tests are specified
+                sh 'npm test'
             }
         }
 
         stage('Build') {
             steps {
                 echo "Building application for environment: ${env.NODE_ENV}"
-                sh 'npm run build || echo "No build script defined"' // Attempt to run the build command
+                sh 'npm run build' // This will now run the build command you define in package.json
             }
         }
 
         stage('Package for Deployment') {
             steps {
                 echo "Packaging application..."
-                sh 'tar -czf app.tar.gz *' // Package all files into a tar.gz archive
+                sh 'tar -czf app.tar.gz *'
             }
         }
 
         stage('Build Docker Image') {
             steps {
                 script {
-                    def imageTag = "${env.JOB_NAME}-${env.BUILD_NUMBER}" // Create a unique image tag
+                    def imageTag = "${env.JOB_NAME}-${env.BUILD_NUMBER}"
                     echo "Building Docker image with tag: ${imageTag}"
-                    sh "docker build -t my-node-app:${imageTag} ." // Build the Docker image
+                    sh "docker build -t my-node-app:${imageTag} ."
                 }
             }
         }
@@ -65,13 +65,13 @@ pipeline {
             steps {
                 withCredentials([string(credentialsId: 'dockerHubPassword', variable: 'DOCKER_PASSWORD')]) {
                     script {
-                        def imageTag = "${env.JOB_NAME}-${env.BUILD_NUMBER}" // Use the same image tag for pushing
+                        def imageTag = "${env.JOB_NAME}-${env.BUILD_NUMBER}"
                         echo 'Logging in to Docker Hub...'
-                        sh 'echo $DOCKER_PASSWORD | docker login -u my-dockerhub-username --password-stdin' // Log in to Docker Hub
+                        sh 'echo $DOCKER_PASSWORD | docker login -u my-dockerhub-username --password-stdin'
                         echo "Tagging Docker image as my-dockerhub-username/my-node-app:${imageTag}"
-                        sh "docker tag my-node-app:${imageTag} my-dockerhub-username/my-node-app:${imageTag}" // Tag the Docker image
+                        sh "docker tag my-node-app:${imageTag} my-dockerhub-username/my-node-app:${imageTag}"
                         echo 'Pushing Docker image to Docker Hub...'
-                        sh "docker push my-dockerhub-username/my-node-app:${imageTag}" // Push the image to Docker Hub
+                        sh "docker push my-dockerhub-username/my-node-app:${imageTag}"
                     }
                 }
             }
@@ -80,13 +80,13 @@ pipeline {
 
     post {
         success {
-            echo 'Pipeline completed successfully.' // Success message
+            echo 'Pipeline completed successfully.'
         }
         failure {
-            echo 'Pipeline failed.' // Failure message
+            echo 'Pipeline failed.'
         }
         always {
-            echo "Cleaning up workspace..." // Clean up workspace after each run
+            echo "Cleaning up workspace..."
             cleanWs()
         }
     }
