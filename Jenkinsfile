@@ -34,20 +34,4 @@ pipeline {
             }
         }
     }
-    post {
-        always {
-            script {
-                bat "docker logs ${IMAGE_NAME}" 
-                bat "docker stop ${IMAGE_NAME} || true"
-                bat "docker rm ${IMAGE_NAME} || true"
-                bat "docker rmi ${IMAGE_NAME} || true"
-            }
-        }
-        success {
-            echo "Pipeline completed successfully!"
-        }
-        failure {
-            echo "Pipeline failed. Check the logs for more details."
-        }
-    }
 }
