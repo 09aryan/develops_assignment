@@ -5,6 +5,15 @@ pipeline {
         APP_PORT = '3000' // Default port; can be customized as needed
     }
     stages {
+        stage('Verify Node.js and npm Installation') {
+            steps {
+                echo 'Verifying Node and npm are accessible in Jenkins...'
+                sh 'which node || echo "Node.js not found"'
+                sh 'which npm || echo "npm not found"'
+                sh 'node -v || echo "Node.js version not found"'
+                sh 'npm -v || echo "npm version not found"'
+            }
+        }
         stage('Checkout') {
             steps {
                 echo 'Checking out code...'
