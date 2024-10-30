@@ -4,7 +4,7 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-   
+    "test": "echo 'No tests specified' && exit 0", 
     "start": "node app.js", 
     "build": "echo 'Build step is defined; add your build commands here'"
   },
