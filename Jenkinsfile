@@ -62,20 +62,21 @@ pipeline {
         }
         stage('Push Docker Image') {
             steps {
-                withCredentials([string(credentialsId: 'dockerHubPassword', variable: 'DOCKER_PASSWORD')]) {
-                    script {
-                        echo 'Logging in to Docker Hub...'
-                        sh 'echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin'
-                        echo "Tagging Docker image as ${DOCKER_USERNAME}/my-node-app:${env.BUILD_ID}"
-                        sh "docker tag my-node-app:${env.BUILD_ID} ${DOCKER_USERNAME}/my-node-app:${env.BUILD_ID}"
-                        echo 'Pushing Docker image to Docker Hub...'
-                        try {
-                            sh "docker push ${DOCKER_USERNAME}/my-node-app:${env.BUILD_ID}"
-                        } catch (Exception e) {
-                            error("Failed to push Docker image: ${e.getMessage()}")
-                        }
-                    }
-                }
+               stage('Push Docker Image') {
+    steps {
+        withCredentials([usernamePassword(credentialsId: 'dockerHubPassword', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+            script {
+                echo 'Logging in to Docker Hub...'
+                sh 'echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin'
+                echo "Tagging Docker image as $DOCKER_USERNAME/my-node-app:${env.BUILD_ID}"
+                sh "docker tag my-node-app:${env.BUILD_ID} $DOCKER_USERNAME/my-node-app:${env.BUILD_ID}"
+                echo 'Pushing Docker image to Docker Hub...'
+                sh "docker push $DOCKER_USERNAME/my-node-app:${env.BUILD_ID}"
+            }
+        }
+    }
+}
+
             }
         }
     }
