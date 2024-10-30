@@ -1,9 +1,11 @@
 {
   "name": "node_app",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "index.js", 
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha", 
+    "start": "node app.js",
+    "build": "echo 'No build script defined'" 
   },
   "keywords": [],
   "author": "",
@@ -11,5 +13,9 @@
   "description": "",
   "dependencies": {
     "express": "^4.21.1"
+  },
+  "devDependencies": {
+    "mocha": "^10.2.0", 
+    "chai": "^4.3.6"
   }
 }
