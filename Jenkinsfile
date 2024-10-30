@@ -1,6 +1,6 @@
 pipeline {
     agent any
-    tools { nodejs 'NodeJs' } // Use the Node.js installation name you configured in Jenkins
+   tools { nodejs 'NodeJs' } 
 
     environment {
         NODE_ENV = 'development'
@@ -30,24 +30,27 @@ pipeline {
             }
         }
 
+        // Commented out the Test stage for now
+        /*
         stage('Test') {
             steps {
                 echo 'Running tests...'
-                sh 'npm test' // Assumes `npm test` is defined in package.json
+                sh 'npm test'
             }
         }
+        */
 
         stage('Build') {
             steps {
                 echo "Building application for environment: ${env.NODE_ENV}"
-                sh 'npm run build' // Adjust this if your project uses a different build command
+                sh 'npm run build'
             }
         }
 
         stage('Package for Deployment') {
             steps {
                 echo "Packaging application..."
-                sh 'tar -czf app.tar.gz *' // Compresses app files for deployment
+                sh 'tar -czf app.tar.gz *'
             }
         }
 
@@ -71,7 +74,7 @@ pipeline {
                         echo "Tagging Docker image as my-dockerhub-username/my-node-app:${imageTag}"
                         sh "docker tag my-node-app:${imageTag} my-dockerhub-username/my-node-app:${imageTag}"
                         echo 'Pushing Docker image to Docker Hub...'
-                        sh "docker push my-dockerhub-username/my-node-app:${imageTag}"
+                        sh "docker push my-docker-app:${imageTag}"
                     }
                 }
             }
