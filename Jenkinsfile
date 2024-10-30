@@ -2,46 +2,37 @@ pipeline {
     agent any
     environment {
         NODE_ENV = 'development'
-        PORT = '3000'
+        APP_PORT = '3000' // Added port in case it's needed later
     }
     stages {
         stage('Checkout') {
             steps {
+                echo 'Checking out code...'
                 checkout scm
             }
         }
         stage('Install dependencies') {
             steps {
+                echo 'Installing dependencies...'
                 sh 'npm install'
             }
         }
         stage('Test') {
             steps {
+                echo 'Running tests...'
                 sh 'npm test'
             }
         }
-        stage('Build Docker Image') {
+        stage('Build') {
             steps {
-                script {
-                    docker.build("my-node-app:${env.BUILD_ID}")
-                }
+                echo "Building application for environment: ${env.NODE_ENV}"
+                sh 'npm run build' // Change this if you have a specific build command
             }
         }
-        stage('Push Docker Image') {
+        stage('Package for Deployment') {
             steps {
-                withCredentials([string(credentialsId: 'dockerHubPassword', variable: 'DOCKER_PASSWORD')]) {
-                    sh 'echo $DOCKER_PASSWORD | docker login -u my-dockerhub-username --password-stdin'
-                    sh "docker tag my-node-app:${env.BUILD_ID} my-dockerhub-username/my-node-app:${env.BUILD_ID}"
-                    sh "docker push my-dockerhub-username/my-node-app:${env.BUILD_ID}"
-                }
-            }
-        }
-        stage('Deploy') {
-            steps {
-                withCredentials([string(credentialsId: 'API_KEY', variable: 'API_KEY'), string(credentialsId: 'DATABASE_URL', variable: 'DATABASE_URL')]) {
-                    sh 'echo "Deploying with API_KEY and DATABASE_URL"'
-                    // Additional deployment steps can go here
-                }
+                echo "Packaging application..."
+                sh 'tar -czf app.tar.gz *' // Creates a compressed package of the application
             }
         }
     }
@@ -51,6 +42,10 @@ pipeline {
         }
         failure {
             echo 'Pipeline failed.'
+        }
+        always {
+            echo "Cleaning up workspace..."
+            cleanWs() // Clean workspace after build completes
         }
     }
 }
