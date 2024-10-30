@@ -28,7 +28,7 @@ pipeline {
             steps {
                 script {
                     bat '''
-                    curl -I http://localhost:5000 | find "200 OK" || (echo "Application not responding" && exit 1)
+                    curl -I http://localhost:3000 | find "200 OK" || (echo "Application not responding" && exit 1)
                     '''
                 }
             }
