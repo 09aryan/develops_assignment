@@ -1,6 +1,6 @@
 pipeline {
     agent any
-    tools { nodejs 'NodeJS_14' } // Use the Node.js installation name you configured in Jenkins
+    tools { nodejs 'NodeJs' } // Use the Node.js installation name you configured in Jenkins
 
     environment {
         NODE_ENV = 'development'
