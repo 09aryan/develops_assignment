@@ -1,6 +1,6 @@
 pipeline {
     agent any
-   tools { nodejs 'NodeJs' } 
+    tools { nodejs 'NodeJs' } // Ensure this matches your Node.js installation name
 
     environment {
         NODE_ENV = 'development'
@@ -30,20 +30,17 @@ pipeline {
             }
         }
 
-        // Commented out the Test stage for now
-        /*
         stage('Test') {
             steps {
                 echo 'Running tests...'
                 sh 'npm test'
             }
         }
-        */
 
         stage('Build') {
             steps {
                 echo "Building application for environment: ${env.NODE_ENV}"
-                sh 'npm run build'
+                sh 'npm run build' // This will now run the build command you define in package.json
             }
         }
 
@@ -74,7 +71,7 @@ pipeline {
                         echo "Tagging Docker image as my-dockerhub-username/my-node-app:${imageTag}"
                         sh "docker tag my-node-app:${imageTag} my-dockerhub-username/my-node-app:${imageTag}"
                         echo 'Pushing Docker image to Docker Hub...'
-                        sh "docker push my-docker-app:${imageTag}"
+                        sh "docker push my-dockerhub-username/my-node-app:${imageTag}"
                     }
                 }
             }

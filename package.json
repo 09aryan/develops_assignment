@@ -1,11 +1,11 @@
 {
   "name": "node_app",
   "version": "1.0.0",
-  "main": "index.js", 
+  "main": "app.js",
   "scripts": {
-    "test": "mocha", 
-    "start": "node app.js",
-    "build": "echo 'No build script defined'" 
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node app.js", 
+    "build": "echo 'Build step is not defined yet'" 
   },
   "keywords": [],
   "author": "",
@@ -16,6 +16,6 @@
   },
   "devDependencies": {
     "mocha": "^10.2.0", 
-    "chai": "^4.3.6"
+    "chai": "^4.3.6" 
   }
 }
