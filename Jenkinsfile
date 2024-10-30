@@ -6,7 +6,6 @@ pipeline {
     environment {
         NODE_ENV = 'development'
         APP_PORT = '3000'
-        DOCKER_USERNAME = 'my-dockerhub-username' // Parameterized Docker Hub username
     }
     stages {
         stage('Verify Node.js and npm Installation') {
@@ -49,34 +48,25 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    withEnv(['PATH+DOCKER=/usr/local/bin']) {  // Update path to Docker if needed
+                    withEnv(['PATH+DOCKER=/usr/local/bin']) {  // Adjust path if Docker is located elsewhere
                         echo "Building Docker image for tag: ${env.BUILD_ID}"
-                        try {
-                            docker.build("my-node-app:${env.BUILD_ID}")
-                        } catch (Exception e) {
-                            error("Failed to build Docker image: ${e.getMessage()}")
-                        }
+                        docker.build("my-node-app:${env.BUILD_ID}")
                     }
                 }
             }
         }
         stage('Push Docker Image') {
             steps {
-               stage('Push Docker Image') {
-    steps {
-        withCredentials([usernamePassword(credentialsId: 'dockerHubPassword', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
-            script {
-                echo 'Logging in to Docker Hub...'
-                sh 'echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin'
-                echo "Tagging Docker image as $DOCKER_USERNAME/my-node-app:${env.BUILD_ID}"
-                sh "docker tag my-node-app:${env.BUILD_ID} $DOCKER_USERNAME/my-node-app:${env.BUILD_ID}"
-                echo 'Pushing Docker image to Docker Hub...'
-                sh "docker push $DOCKER_USERNAME/my-node-app:${env.BUILD_ID}"
-            }
-        }
-    }
-}
-
+                withCredentials([usernamePassword(credentialsId: 'dockerHubPassword', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                    script {
+                        echo 'Logging in to Docker Hub...'
+                        sh 'echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin'
+                        echo "Tagging Docker image as $DOCKER_USERNAME/my-node-app:${env.BUILD_ID}"
+                        sh "docker tag my-node-app:${env.BUILD_ID} $DOCKER_USERNAME/my-node-app:${env.BUILD_ID}"
+                        echo 'Pushing Docker image to Docker Hub...'
+                        sh "docker push $DOCKER_USERNAME/my-node-app:${env.BUILD_ID}"
+                    }
+                }
             }
         }
     }
