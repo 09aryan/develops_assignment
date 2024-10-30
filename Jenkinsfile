@@ -1,6 +1,7 @@
 pipeline {
     agent any
     environment {
+        PATH = "${env.PATH}:/usr/local/bin"  // Ensuring Docker is accessible
         IMAGE_NAME = 'devops-21bds005--assignment'
     }
     stages {
@@ -13,7 +14,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    // Directly using sh to build Docker image without relying on docker object
+                    // Build Docker image
                     sh 'docker build -t devops-21bds005--assignment .'
                 }
             }
@@ -24,7 +25,7 @@ pipeline {
                 script {
                     // Run the Docker container and map ports
                     sh 'docker run -d --name devops-21bds005--assignment -p 3000:3000 devops-21bds005--assignment'
-                    sleep(10) // Give some time for the container to start up
+                    sleep(10) // Allow time for the container to start up
                 }
             }
         }
@@ -32,7 +33,7 @@ pipeline {
         stage('Test Application') {
             steps {
                 script {
-                    // Testing the application by checking for a 200 OK response from localhost:3000
+                    // Test the application by checking for a 200 OK response on localhost:3000
                     sh '''
                     if curl -I http://localhost:3000 | grep "200 OK"; then
                         echo "Application is running successfully"
