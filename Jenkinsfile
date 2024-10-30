@@ -1,86 +1,53 @@
 pipeline {
     agent any
-    tools { nodejs 'NodeJs' } // Ensure this matches your Node.js installation name
-
     environment {
-        NODE_ENV = 'development'
-        APP_PORT = '3000' // Default application port
+        IMAGE_NAME = 'devops-21bds005--assignment'
     }
-
     stages {
-        stage('Checkout') {
+        stage('Clone Repository') {
             steps {
-                echo 'Checking out code...'
-                checkout scm // Check out the code from the source control management system (e.g., Git)
+                git 'https://github.com/09aryan/develops_assignment.git'
             }
         }
-
-        stage('Verify Node.js and npm Installation') {
-            steps {
-                echo 'Verifying Node and npm are accessible in Jenkins...'
-                sh 'node -v || echo "Node.js not found"'
-                sh 'npm -v || echo "npm not found"'
-            }
-        }
-
-        stage('Install dependencies') {
-            steps {
-                echo 'Installing dependencies...'
-                sh 'npm install' // Install the project dependencies defined in package.json
-            }
-        }
-
-        stage('Build') {
-            steps {
-                echo "Building application for environment: ${env.NODE_ENV}"
-                sh 'npm run build' // This will now run the build command you define in package.json
-            }
-        }
-
-        stage('Package for Deployment') {
-            steps {
-                echo "Packaging application..."
-                sh 'tar -czf app.tar.gz *' // Package all files into a tar.gz archive
-            }
-        }
-
         stage('Build Docker Image') {
             steps {
                 script {
-                    def imageTag = "${env.JOB_NAME}-${env.BUILD_NUMBER}" // Create a unique image tag
-                    echo "Building Docker image with tag: ${imageTag}"
-                    sh "docker build -t my-node-app:${imageTag} ." // Build the Docker image
+                    dockerImage = docker.build("${IMAGE_NAME}")
                 }
             }
         }
-
-        stage('Push Docker Image') {
+        stage('Run Docker Container') {
             steps {
-                withCredentials([string(credentialsId: 'dockerHubPassword', variable: 'DOCKER_PASSWORD')]) {
-                    script {
-                        def imageTag = "${env.JOB_NAME}-${env.BUILD_NUMBER}" // Use the same image tag for pushing
-                        echo 'Logging in to Docker Hub...'
-                        sh 'echo $DOCKER_PASSWORD | docker login -u my-dockerhub-username --password-stdin' // Login to Docker Hub
-                        echo "Tagging Docker image as my-dockerhub-username/my-node-app:${imageTag}"
-                        sh "docker tag my-node-app:${imageTag} my-dockerhub-username/my-node-app:${imageTag}" // Tag the Docker image
-                        echo 'Pushing Docker image to Docker Hub...'
-                        sh "docker push my-dockerhub-username/my-node-app:${imageTag}" // Push the image to Docker Hub
-                    }
+                script {
+                    bat "docker run -d --name ${IMAGE_NAME} -p 3000:3000 ${IMAGE_NAME}"
+                    sleep(10)
+                }
+            }
+        }
+        stage('Test Application') {
+            steps {
+                script {
+                    bat '''
+                    curl -I http://localhost:5000 | find "200 OK" || (echo "Application not responding" && exit 1)
+                    '''
                 }
             }
         }
     }
-
     post {
+        always {
+            script {
+                bat "docker logs ${IMAGE_NAME}" 
+                bat "docker stop ${IMAGE_NAME} || true"
+                bat "docker rm ${IMAGE_NAME} || true"
+                bat "docker rmi ${IMAGE_NAME} || true"
+            }
+        }
         success {
-            echo 'Pipeline completed successfully.' // Success message
+            echo "Pipeline completed successfully!"
         }
         failure {
-            echo 'Pipeline failed.' // Failure message
-        }
-        always {
-            echo "Cleaning up workspace..." // Clean up workspace after each run
-            cleanWs()
+            echo "Pipeline failed. Check the logs for more details."
         }
     }
 }
