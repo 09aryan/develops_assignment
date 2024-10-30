@@ -1,17 +1,18 @@
 pipeline {
     agent any
+    tools {
+        nodejs 'NodeJs' // Matches the exact name in Global Tool Configuration
+    }
     environment {
         NODE_ENV = 'development'
-        APP_PORT = '3000' // Default port, can be customized
+        APP_PORT = '3000'
     }
     stages {
         stage('Verify Node.js and npm Installation') {
             steps {
                 echo 'Verifying Node and npm are accessible in Jenkins...'
-                sh 'which node || echo "Node.js not found"'
-                sh 'which npm || echo "npm not found"'
-                sh 'node -v || echo "Node.js version not found"'
-                sh 'npm -v || echo "npm version not found"'
+                sh 'node -v'
+                sh 'npm -v'
             }
         }
         stage('Checkout') {
@@ -35,13 +36,13 @@ pipeline {
         stage('Build') {
             steps {
                 echo "Building application for environment: ${env.NODE_ENV}"
-                sh 'npm run build' // Adjust if your project uses a specific build command
+                sh 'npm run build'
             }
         }
         stage('Package for Deployment') {
             steps {
                 echo "Packaging application..."
-                sh 'tar -czf app.tar.gz *' // Compresses the app files for deployment
+                sh 'tar -czf app.tar.gz *'
             }
         }
         stage('Build Docker Image') {
