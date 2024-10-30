@@ -1,9 +1,12 @@
 pipeline {
     agent any
+    tools { nodejs 'NodeJS_14' } // Use the Node.js installation name you configured in Jenkins
+
     environment {
         NODE_ENV = 'development'
         APP_PORT = '3000'
     }
+
     stages {
         stage('Checkout') {
             steps {
@@ -11,6 +14,7 @@ pipeline {
                 checkout scm
             }
         }
+
         stage('Verify Node.js and npm Installation') {
             steps {
                 echo 'Verifying Node and npm are accessible in Jenkins...'
@@ -18,30 +22,35 @@ pipeline {
                 sh 'npm -v || echo "npm not found"'
             }
         }
+
         stage('Install dependencies') {
             steps {
                 echo 'Installing dependencies...'
                 sh 'npm install'
             }
         }
+
         stage('Test') {
             steps {
                 echo 'Running tests...'
-                sh 'npm test'
+                sh 'npm test' // Assumes `npm test` is defined in package.json
             }
         }
+
         stage('Build') {
             steps {
                 echo "Building application for environment: ${env.NODE_ENV}"
-                sh 'npm run build'
+                sh 'npm run build' // Adjust this if your project uses a different build command
             }
         }
+
         stage('Package for Deployment') {
             steps {
                 echo "Packaging application..."
-                sh 'tar -czf app.tar.gz *'
+                sh 'tar -czf app.tar.gz *' // Compresses app files for deployment
             }
         }
+
         stage('Build Docker Image') {
             steps {
                 script {
@@ -51,6 +60,7 @@ pipeline {
                 }
             }
         }
+
         stage('Push Docker Image') {
             steps {
                 withCredentials([string(credentialsId: 'dockerHubPassword', variable: 'DOCKER_PASSWORD')]) {
@@ -67,6 +77,7 @@ pipeline {
             }
         }
     }
+
     post {
         success {
             echo 'Pipeline completed successfully.'
